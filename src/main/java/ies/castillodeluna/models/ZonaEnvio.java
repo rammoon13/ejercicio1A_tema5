@@ -1,58 +1,40 @@
 package ies.castillodeluna.models;
 
+import jakarta.persistence.*;
+import java.util.List;
+
 /**
  * Clase que representa una zona de envío dentro del sistema.
  */
+@Entity
+@Table(name = "Zonas_Envio")
 public class ZonaEnvio {
-    private int id; // ID único de la zona de envío
-    private String nombre; // Nombre de la zona de envío
-    private double tarifaEnvio; // Tarifa asociada a la zona de envío
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_zona")
+    private int id;
 
-    /**
-     * Constructor para inicializar una zona de envío con sus atributos.
-     *
-     * @param id          Identificador único de la zona de envío.
-     * @param nombre      Nombre de la zona de envío.
-     * @param tarifaEnvio Tarifa de envío asociada a la zona.
-     */
-    public ZonaEnvio(int id, String nombre, double tarifaEnvio) {
-        this.id = id;
+    @Column(name = "nombre_zona", nullable = false, unique = true)
+    private String nombre;
+
+    @Column(nullable = false)
+    private double tarifaEnvio;
+
+    @OneToMany(mappedBy = "zonaEnvio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Cliente> clientes;
+
+    public ZonaEnvio() {}
+
+    public ZonaEnvio(String nombre, double tarifaEnvio) {
         this.nombre = nombre;
         this.tarifaEnvio = tarifaEnvio;
     }
 
-    /**
-     * Obtiene el ID de la zona de envío.
-     *
-     * @return ID de la zona de envío.
-     */
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public String getNombre() { return nombre; }
+    public double getTarifaEnvio() { return tarifaEnvio; }
+    public List<Cliente> getClientes() { return clientes; }
 
-    /**
-     * Obtiene el nombre de la zona de envío.
-     *
-     * @return Nombre de la zona de envío.
-     */
-    public String getNombre() {
-        return nombre;
-    }
-
-    /**
-     * Obtiene la tarifa de envío de la zona.
-     *
-     * @return Tarifa de envío de la zona.
-     */
-    public double getTarifaEnvio() {
-        return tarifaEnvio;
-    }
-
-    /**
-     * Representa la zona de envío como una cadena de texto.
-     *
-     * @return Cadena de texto con la información de la zona de envío.
-     */
     @Override
     public String toString() {
         return String.format("ZonaEnvio{id=%d, nombre='%s', tarifaEnvio=%.2f}", id, nombre, tarifaEnvio);

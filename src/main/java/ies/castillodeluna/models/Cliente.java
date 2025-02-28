@@ -1,85 +1,54 @@
 package ies.castillodeluna.models;
 
+import jakarta.persistence.*;
+import java.util.List;
+
 /**
  * Clase que representa a un cliente en el sistema.
  */
+@Entity
+@Table(name = "Clientes")
 public class Cliente {
-    private int id; // ID único del cliente
-    private String nombre; // Nombre del cliente
-    private String email; // Correo electrónico del cliente
-    private String telefono; // Teléfono del cliente
-    private int idZona; // ID de la zona de envío del cliente
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cliente")
+    private int id;
 
-    /**
-     * Constructor para inicializar un objeto Cliente con sus atributos.
-     *
-     * @param id        Identificador único del cliente.
-     * @param nombre    Nombre del cliente.
-     * @param email     Correo electrónico del cliente.
-     * @param telefono  Teléfono del cliente.
-     * @param idZona    ID de la zona de envío del cliente.
-     */
-    public Cliente(int id, String nombre, String email, String telefono, int idZona) {
-        this.id = id;
+    @Column(nullable = false)
+    private String nombre;
+    
+    @Column(nullable = false, unique = true)
+    private String email;
+    
+    @Column(nullable = false)
+    private String telefono;
+    
+    @ManyToOne
+    @JoinColumn(name = "id_zona", nullable = false)
+    private ZonaEnvio zonaEnvio;
+    
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pedido> pedidos;
+
+    public Cliente() {}
+
+    public Cliente(String nombre, String email, String telefono, ZonaEnvio zonaEnvio) {
         this.nombre = nombre;
         this.email = email;
         this.telefono = telefono;
-        this.idZona = idZona;
+        this.zonaEnvio = zonaEnvio;
     }
 
-    /**
-     * Obtiene el ID del cliente.
-     *
-     * @return ID del cliente.
-     */
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public String getNombre() { return nombre; }
+    public String getEmail() { return email; }
+    public String getTelefono() { return telefono; }
+    public ZonaEnvio getZonaEnvio() { return zonaEnvio; }
+    public List<Pedido> getPedidos() { return pedidos; }
 
-    /**
-     * Obtiene el nombre del cliente.
-     *
-     * @return Nombre del cliente.
-     */
-    public String getNombre() {
-        return nombre;
-    }
-
-    /**
-     * Obtiene el correo electrónico del cliente.
-     *
-     * @return Correo electrónico del cliente.
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Obtiene el teléfono del cliente.
-     *
-     * @return Teléfono del cliente.
-     */
-    public String getTelefono() {
-        return telefono;
-    }
-
-    /**
-     * Obtiene el ID de la zona de envío del cliente.
-     *
-     * @return ID de la zona de envío del cliente.
-     */
-    public int getIdZona() {
-        return idZona;
-    }
-
-    /**
-     * Representa el objeto Cliente como una cadena de texto.
-     *
-     * @return Cadena de texto con la información del cliente.
-     */
     @Override
     public String toString() {
-        return String.format("Cliente{id=%d, nombre='%s', email='%s', telefono='%s', idZona=%d}", 
-                id, nombre, email, telefono, idZona);
+        return String.format("Cliente{id=%d, nombre='%s', email='%s', telefono='%s', zonaEnvio='%s'}",
+                id, nombre, email, telefono, zonaEnvio.getNombre());
     }
 }

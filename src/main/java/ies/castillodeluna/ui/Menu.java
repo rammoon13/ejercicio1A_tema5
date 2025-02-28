@@ -1,24 +1,57 @@
 package ies.castillodeluna.ui;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import ies.castillodeluna.dao.ZonaEnvioDAO;
+import ies.castillodeluna.dao.ClienteDAO;
+import ies.castillodeluna.models.ZonaEnvio;
+import ies.castillodeluna.models.Cliente;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.Scanner;
 
 /**
- * Clase que representa el menú de gestión de pedidos.
+ * Clase que representa el menú de gestión de pedidos con Hibernate.
  */
 public class Menu {
-    private final MenuHandler menuHandler; // Manejador del menú
-    private final Scanner scanner; // Scanner para leer la entrada del usuario
+    private final MenuHandler menuHandler;
+    private final Scanner scanner;
 
     /**
-     * Constructor que inicializa el menú con la conexión a la base de datos.
-     *
-     * @param conn Conexión a la base de datos.
+     * Constructor que inicializa el menú y precarga datos en la base de datos.
      */
-    public Menu(Connection conn) {
-        this.menuHandler = new MenuHandler(conn);
+    public Menu() {
+        this.menuHandler = new MenuHandler();
         this.scanner = new Scanner(System.in);
+        precargarDatos();
+    }
+
+    /**
+     * Precarga datos iniciales en la base de datos si no existen.
+     */
+    private void precargarDatos() {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("pedidosPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+
+        // Verificar si hay zonas de envío
+        if (em.createQuery("SELECT COUNT(z) FROM ZonaEnvio z", Long.class).getSingleResult() == 0) {
+            ZonaEnvio zona1 = new ZonaEnvio("Norte", 5.00);
+            ZonaEnvio zona2 = new ZonaEnvio("Sur", 7.50);
+            em.persist(zona1);
+            em.persist(zona2);
+
+            Cliente cliente1 = new Cliente("Ana López", "ana.lopez@example.com", "600123456", zona1);
+            Cliente cliente2 = new Cliente("Carlos Pérez", "carlos.perez@example.com", "610654321", zona2);
+            Cliente cliente3 = new Cliente("Beatriz Gómez", "beatriz.gomez@example.com", "620987654", zona1);
+            Cliente cliente4 = new Cliente("David Martín", "david.martin@example.com", "630321789", zona2);
+            em.persist(cliente1);
+            em.persist(cliente2);
+            em.persist(cliente3);
+            em.persist(cliente4);
+        }
+
+        em.getTransaction().commit();
+        em.close();
     }
 
     /**
@@ -40,20 +73,16 @@ public class Menu {
             opcion = scanner.nextInt();
             scanner.nextLine(); // Limpia el buffer del scanner
 
-            try {
-                switch (opcion) {
-                    case 1 -> menuHandler.mostrarZonasEnvio();
-                    case 2 -> menuHandler.mostrarClientes();
-                    case 3 -> menuHandler.mostrarPedidosCliente(scanner);
-                    case 4 -> menuHandler.agregarCliente(scanner);
-                    case 5 -> menuHandler.borrarCliente(scanner);
-                    case 6 -> menuHandler.agregarPedido(scanner);
-                    case 7 -> menuHandler.borrarPedido(scanner);
-                    case 8 -> System.out.println("Saliendo...");
-                    default -> System.out.println("Opción inválida. Intente nuevamente.");
-                }
-            } catch (SQLException e) {
-                System.err.println("Error en la base de datos: " + e.getMessage());
+            switch (opcion) {
+                case 1 -> menuHandler.mostrarZonasEnvio();
+                case 2 -> menuHandler.mostrarClientes();
+                case 3 -> menuHandler.mostrarPedidosCliente(scanner);
+                case 4 -> menuHandler.agregarCliente(scanner);
+                case 5 -> menuHandler.borrarCliente(scanner);
+                case 6 -> menuHandler.agregarPedido(scanner);
+                case 7 -> menuHandler.borrarPedido(scanner);
+                case 8 -> System.out.println("Saliendo...");
+                default -> System.out.println("Opción inválida. Intente nuevamente.");
             }
         } while (opcion != 8);
     }
