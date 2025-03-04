@@ -17,7 +17,7 @@ public class Cliente {
     @Column(nullable = false)
     private String nombre;
     
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
     
     @Column(nullable = false)

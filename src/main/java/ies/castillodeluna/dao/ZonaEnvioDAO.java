@@ -22,4 +22,12 @@ public class ZonaEnvioDAO {
         em.close();
         return zonas;
     }
+
+    public ZonaEnvio obtenerZonaPorId(int id) {
+        EntityManager em = emf.createEntityManager();
+        ZonaEnvio zona = em.find(ZonaEnvio.class, id);
+        em.close();
+        return zona;
+    }
+    
 }

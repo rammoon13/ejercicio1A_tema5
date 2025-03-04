@@ -51,10 +51,15 @@ public class MenuHandler {
         System.out.print("ID de Zona de Envío: ");
         int idZona = scanner.nextInt();
         scanner.nextLine(); // Limpiar buffer
-        Cliente cliente = new Cliente(nombre, email, telefono, new ZonaEnvioDAO().obtenerZonasEnvio().stream().filter(z -> z.getId() == idZona).findFirst().orElse(null));
+        ZonaEnvio zona = new ZonaEnvioDAO().obtenerZonaPorId(idZona);
+        if (zona == null) {
+            System.out.println("Error: No existe una zona con ID " + idZona);
+            return;
+        }
+        Cliente cliente = new Cliente(nombre, email, telefono, zona);
         clienteDAO.agregarCliente(cliente);
         System.out.println("Cliente agregado exitosamente.");
-    }
+        }
 
     public void borrarCliente(Scanner scanner) {
         System.out.print("Ingrese el ID del Cliente a eliminar: ");
